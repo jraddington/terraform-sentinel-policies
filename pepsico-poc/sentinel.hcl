@@ -14,7 +14,7 @@ module "azure-functions" {
     source = "../azure-functions/azure-functions.sentinel"
 }
 
-policy "enforce-mandatory-tags" {
+policy "enforce-minimum-tls" {
     source = "./azure-sql-tls.sentinel"
     enforcement_level = "advisory"
 }
