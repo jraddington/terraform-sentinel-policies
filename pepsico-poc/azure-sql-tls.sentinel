@@ -1,0 +1,23 @@
+# This policy uses the Sentinel tfplan/v2 import to require that
+# specified Azure SQL Servers meet security requirements
+
+# Import common-functions/tfplan-functions/tfplan-functions.sentinel
+# with alias "plan"
+import "tfplan-functions" as plan
+
+# List of allowed tls versions
+# Include "null" to allow missing or computed values
+allowed_tls_versions = ["1.1", "1.2"]
+
+# Get all Azure SQL Servers
+allSqlServers = plan.find_resources("azurerm_mssql_server")
+
+# Filter to Azure SQL Servers that use not allowed tls versions
+# Warnings will be printed for all violations since the last parameter is true
+violatingSqlServers = plan.filter_attribute_not_in_list(allSqlServers,
+  "minimum_tls_version", allowed_tls_versions, true)
+
+# Main rule
+main = rule {
+  length(violatingSqlServers["messages"]) is 0
+}
