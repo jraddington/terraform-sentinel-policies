@@ -1,0 +1,71 @@
+# WIP WIP WI PWIP
+
+import "tfplan/v2" as tfplan
+
+defaultDenySecurityRule = filter tfplan.resource_changes as _, rc {
+    rc.mode is "managed" and
+    rc.type is "security_rule" and
+    rc.change.actions is not "delete"
+}
+
+main = rule {
+	all defaultDenySecurityRule as _, security_rule {
+		(instance.change.after.tags else {}) is not empty
+	}
+}
+
+input = plan.find_resources("security_rile")
+
+securityRules = map input as _, i {
+    {
+        "name": i.name,
+        "priority": i.priority,
+        "access": i.access,
+    }
+}
+
+print (securityRules)
+
+
+
+
+input = [
+  { 
+  	"name":"sentinel",
+  	"version":"0.17.1",
+  	"shasums":"sentinel_0.17.1_SHA256SUMS",
+  	"shasums_signature":"sentinel_0.17.1_SHA256SUMS.sig",
+	},
+]
+
+// Map Expression
+result = map input as _, i {
+  {
+  	"name": i.name,
+  	"version": i.version,
+  }
+}
+print (result)
+
+main = rule {
+[{"name": "sentinel", "version": "0.17.1"}]
+}
+
+
+
+azure_nsg_default_deny = func() {
+
+  validated = false
+
+  if (tfplan.resource_changes.azurem_network_security_group.change.after.security_rule.priority = 4096 and
+     tfplan.resource_changes.azurem_network_security_group.change.after.security_rule.direction = "Inbound" and
+     tfplan.resource_changes.azurem_network_security_group.change.after.security_rule.acess = "Deny") 
+     validated = true
+  return validated
+}
+
+nsg_validated = azure_nsg_default_deny()
+
+main = rule {
+ nsg_validated
+}

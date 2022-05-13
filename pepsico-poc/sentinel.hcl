@@ -14,3 +14,8 @@ policy "enforce-minimum-tls" {
     source = "./azure-sql-tls.sentinel"
     enforcement_level = "advisory"
 }
+
+policy "nsg-default-deny" {
+    source = "./azure-nsg-default-deny.sentinel"
+    enforcement_level = "advisory"
+}
